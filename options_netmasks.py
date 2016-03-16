@@ -8,6 +8,20 @@ def mascaras_posibles():
 		mascaras.append(bits[:])
 	return mascaras
 	
+def bintodec(bin):
+	ndig = len(str(bin))
+	dig = range(ndig-1,-1,-1)
+	bin = map(int,list(str(bin)))
+	res = 0
+	for d,b in zip(dig,bin):
+		if b == 1:
+			res += b*(2**d)
+		elif b == 0:
+			pass
+		else:
+			return False
+	return res
+	
 def decimal(mascara):
 	formato_puntos = []
 	formato_decimal_puntos = []
