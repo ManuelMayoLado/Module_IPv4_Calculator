@@ -169,25 +169,32 @@ def comm(n):
 	return list_bits
 
 #DICCIONARIO DE SUBREDES
-def subredes(red,mask,bits):
+def subredes(red,mask,num,s_mask_bits):
 	bit_1 = 0
 	dict_subr = {}
 	for bit in mask:
 		if bit == "1":
 			bit_1 += 1
-	bits = min(bits,32)
-	bits = max(bits,bit_1)
-	bytes_subred = bits-bit_1
+	if num:
+		bin_num = dec2bin(num)
+		num_bits = len(str(bin_num))
+		s_mask_bits = bit_1 + num_bits
+	s_mask_bits = min(s_mask_bits,31)
+	s_mask_bits = max(s_mask_bits,bit_1)
+	bytes_subred = s_mask_bits-bit_1
 	n_subredes = 2**bytes_subred
-	n_hosts_x_subred = 2**(32-bits)
-	mask_subred = ("1"*bits)+("0"*(bits-bit_1))
+	n_hosts_x_subred = 2**(32-s_mask_bits)
+	mask_subred = ("1"*s_mask_bits)+("0"*(32-s_mask_bits))
 	bits_subredes = comm(bytes_subred)
 	print "Numero de Subredes:\t"+str(len(bits_subredes))
-	print "Hosts por Subred:\t"+str((2**(32-bits))-2)
+	print "Hosts por Subred:\t"+str((2**(32-s_mask_bits))-2)
 	print "Mascara:\t\t"+bin2ip(mask_subred)+"\t"+mask_subred
+	print "Subredes:"
 	for sub in bits_subredes:
 		subred = red[:bit_1]+sub+red[bit_1+bytes_subred:]
-		print subred+"\t"+bin2ip(subred)+"/"+str(bits)
+		print (subred+"\t"+bin2ip(subred)+"/"+str(s_mask_bits)+
+			" \t::Rango: "+bin2ip(int(subred)+1)+"-"+
+			bin2ip(broadcast_bin(subred,mask_subred)))
 	
 	
 #CLASE
@@ -203,15 +210,15 @@ class rede():
 		self.clase = clase(self.mask[0])
 		self.ambito = ambito(self.ip[0])
 		self.tipo = tipo(self.ip[0],self.mask[0])
-		self.n_subrs_teoricas = n_subr_teoricas(self.mask[1])
+		#self.n_subrs_teoricas = n_subr_teoricas(self.mask[1])
 		self.n_hosts_teorcios = n_hosts_teoricos(self.mask[1])
 		self.all = [self.ip,self.mask,self.red,self.broadcast,
 					self.clase,self.ambito,self.tipo,
-					self.n_subrs_teoricas,self.n_hosts_teorcios]
+					self.n_hosts_teorcios]
 	def __repr__(self):
 		string_repr = ""
 		for name,info in zip(["Address:","Netmask:","Network:","Broadcast:",
-							"Clase:\t","Ambito:\t", "Tipo:\t","Numero Redes Teoricas:",
+							"Clase:\t","Ambito:\t", "Tipo:\t",
 							"Numero Hosts Teoricos:"],
 							self.all):
 			if type(info).__name__=="list":
@@ -219,7 +226,7 @@ class rede():
 			else:
 				string_repr += name+"\t"+str(info)+"\n"
 		return string_repr
-	def subredes(self,bits):
-		return subredes(self.red[1],self.mask[1],bits)
+	def subredes(self,n=0,mask=0):
+		return subredes(self.red[1],self.mask[1],n,mask)
 		
 		
