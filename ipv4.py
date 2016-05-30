@@ -1,5 +1,11 @@
 # -*- coding: utf-8 -*-
 
+import math
+
+#TODAS AS POSIBLES MASCARAS DE REDE
+def all_masks():
+	return [(("1"*x)+("0"*(32-x))) for x in range(33)]
+
 #DECIMAL A BINARIO	
 def dec2bin(dec):
 	decimal = int(dec)
@@ -176,8 +182,7 @@ def subredes(red,mask,num,s_mask_bits):
 		if bit == "1":
 			bit_1 += 1
 	if num:
-		bin_num = dec2bin(num)
-		num_bits = len(str(bin_num))
+		num_bits = int(math.log(num,2))
 		s_mask_bits = bit_1 + num_bits
 	s_mask_bits = min(s_mask_bits,31)
 	s_mask_bits = max(s_mask_bits,bit_1)
@@ -192,17 +197,24 @@ def subredes(red,mask,num,s_mask_bits):
 	print "Subredes:"
 	for sub in bits_subredes:
 		subred = red[:bit_1]+sub+red[bit_1+bytes_subred:]
-		print (subred+"\t"+bin2ip(subred)+"/"+str(s_mask_bits)+
-			" \t::Rango: "+bin2ip(int(subred)+1)+"-"+
-			bin2ip(broadcast_bin(subred,mask_subred)))
-	
-	
+		print "%-20s %-38s %-40s" % (
+			bin2ip(subred)+"/"+str(s_mask_bits),
+			subred,
+			"::Rango: "+bin2ip(int(subred)+1)+"-"+
+					bin2ip(broadcast_bin(subred,mask_subred)))
+					
+#EXCEPCION
+class ExcepcionRede(Exception):
+	pass
+
 #CLASE
 class rede():
 	def __init__(self,ip,mask="255.255.255.255"):
 		self.ip = [ip,ip2bin(ip)]
 		self.mask = [mask,ip2bin(mask),
 					"/"+str(len([x for x in ip2bin(mask) if x=="1"]))]
+		if not self.mask[1] in all_masks():
+			raise ExcepcionRede("Mascara de red invalida")
 		red_b = red_bin(self.ip[1],self.mask[1])
 		self.red = [bin2ip(red_b),red_b]
 		broadcast_b = broadcast_bin(self.ip[1],self.mask[1])
@@ -218,14 +230,16 @@ class rede():
 	def __repr__(self):
 		string_repr = ""
 		for name,info in zip(["Address:","Netmask:","Network:","Broadcast:",
-							"Clase:\t","Ambito:\t", "Tipo:\t",
+							"Clase:","Ambito:", "Tipo:",
 							"Numero Hosts Teoricos:"],
 							self.all):
 			if type(info).__name__=="list":
-				string_repr += name+"\t"+"\t".join([str(x) for x in info])+"\n"
+				string_repr += ("%-25s ".join(
+						["" for x in range(len(info)+2)]) 
+							% tuple([name]+info))+"\n"
 			else:
-				string_repr += name+"\t"+str(info)+"\n"
-		return string_repr
+				string_repr += ("%-25s %-25s" % (name,info))+"\n"
+		return string_repr[:len(string_repr)-3]
 	def subredes(self,n=0,mask=0):
 		return subredes(self.red[1],self.mask[1],n,mask)
 		
