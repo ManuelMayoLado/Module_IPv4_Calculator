@@ -159,8 +159,7 @@ def n_hosts_teoricos(bin_mask):
 			bit_0 += 1
 		else:
 			bit_1 += 1
-	return ["2^"+str(bit_0)+" = "+str(2 ** bit_0),
-			"Total: "+str((2 ** bit_1) * 2 ** bit_0)]
+	return ["2^"+str(bit_0)+" = "+str(2 ** bit_0)]
 			
 #COMMUTACIÓNS DE BITS
 def comm(n):
