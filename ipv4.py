@@ -83,7 +83,7 @@ def broadcast(ip,mask):
 	broadcast = ""
 	ip_bin = ip2bin(ip)
 	mask_bin = ip2bin(mask)
-	red_bin = red(ip,mask)
+	red_bin = red_bin(ip,mask)
 	for r,m in zip(red_bin,mask_bin):
 		if m == "1":
 			broadcast += r
